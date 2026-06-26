@@ -150,6 +150,36 @@ void CommandBuffer::blitImage(const vk::Vulkan& vk,
     );
 }
 
+void CommandBuffer::copyImage(const vk::Vulkan& vk,
+        const std::vector<vk::Barrier>& preBarriers,
+        std::pair<VkImage, VkImage> images, VkExtent2D extent,
+        const std::vector<vk::Barrier>& postBarriers) const {
+    
+    vk.df().CmdPipelineBarrier(*this->commandBuffer,
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE,
+        static_cast<uint32_t>(preBarriers.size()), preBarriers.data()
+    );
+
+    const VkImageCopy region{
+        .srcSubresource = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .layerCount = 1},
+        .dstSubresource = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .layerCount = 1},
+        .extent = {extent.width, extent.height, 1}
+    };
+
+    vk.df().CmdCopyImage(*this->commandBuffer,
+        images.first, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        images.second, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1, &region
+    );
+
+    vk.df().CmdPipelineBarrier(*this->commandBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+        0, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE,
+        static_cast<uint32_t>(postBarriers.size()), postBarriers.data()
+    );
+}
+
 void CommandBuffer::copyBufferToImage(const vk::Vulkan& vk,
         const vk::Buffer& buffer, const vk::Image& image) const {
     const VkImageMemoryBarrier barrier{

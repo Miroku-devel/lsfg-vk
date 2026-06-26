@@ -70,6 +70,7 @@ namespace vk {
         PFN_vkEndCommandBuffer EndCommandBuffer;
         PFN_vkCmdPipelineBarrier CmdPipelineBarrier;
         PFN_vkCmdBlitImage CmdBlitImage;
+        PFN_vkCmdCopyImage CmdCopyImage;
         PFN_vkCmdClearColorImage CmdClearColorImage;
         PFN_vkCmdBindPipeline CmdBindPipeline;
         PFN_vkCmdBindDescriptorSets CmdBindDescriptorSets;

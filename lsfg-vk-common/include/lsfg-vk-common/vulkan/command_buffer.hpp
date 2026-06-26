@@ -43,6 +43,11 @@ namespace vk {
             const std::vector<vk::Barrier>& preBarriers,
             std::pair<VkImage, VkImage> images, VkExtent2D extent,
             const std::vector<vk::Barrier>& postBarriers) const;
+            
+       void copyImage(const vk::Vulkan& vk,
+            const std::vector<vk::Barrier>& preBarriers,
+            std::pair<VkImage, VkImage> images, VkExtent2D extent,
+            const std::vector<vk::Barrier>& postBarriers) const;
 
         /// insert a bunch of barriers
         /// @param vk the vulkan instance

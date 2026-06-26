@@ -43,7 +43,7 @@ active_in = [ # see the wiki for more info
 multiplier = 4
 flow_scale = 0.85
 performance_mode = true
-pacing = 'none' # see the wiki for more info
+pacing = 'mailbox' # mailbox, fifo, fifo_relaxed, immediate - see the wiki for more info
 
 [[profile]]
 name = "2x FG / 100%"
@@ -70,7 +70,7 @@ ConfigFile::ConfigFile() {
         .multiplier = 4,
         .flow_scale = 0.85F,
         .performance_mode = true,
-        .pacing = Pacing::None
+        .pacing = Pacing::Mailbox
     });
     this->profileConfs.emplace_back(GameConf {
         .name = "2x FG / 100%",
@@ -101,9 +101,15 @@ namespace {
         return active_in;
     }
     /// parse a pacing method from string
-    Pacing parcingFromString(const std::string& str) {
-        if (str == "none")
-            return Pacing::None;
+    Pacing parsingFromString(const std::string& str) {
+        if (str == "none" || str == "mailbox")
+            return Pacing::Mailbox;
+        if (str == "fifo")
+            return Pacing::FIFO;
+        if (str == "fifo_relaxed")
+            return Pacing::FIFORelaxed;
+        if (str == "immediate")
+            return Pacing::Immediate;
         throw ls::error("unknown pacing method: " + str);
     }
     /// parse the global configuration
@@ -127,7 +133,7 @@ namespace {
             .multiplier = tbl["multiplier"].value_or(2U),
             .flow_scale = tbl["flow_scale"].value_or(1.0F),
             .performance_mode = tbl["performance_mode"].value_or(false),
-            .pacing = parcingFromString(tbl["pacing"].value_or<std::string>("none"))
+            .pacing = parsingFromString(tbl["pacing"].value_or<std::string>("none"))
         };
 
         if (conf.multiplier <= 1)
@@ -166,7 +172,7 @@ namespace {
             .multiplier = 2,
             .flow_scale = 1.0F,
             .performance_mode = false,
-            .pacing = Pacing::None
+        .pacing = Pacing::Mailbox
         };
 
         const char* gpu = std::getenv("LSFGVK_GPU");
@@ -178,7 +184,7 @@ namespace {
         const char* performance = std::getenv("LSFGVK_PERFORMANCE_MODE");
         if (performance) conf.performance_mode = std::string(performance) == "1";
         const char* pacing = std::getenv("LSFGVK_PACING");
-        if (pacing) conf.pacing = parcingFromString(std::string(pacing));
+        if (pacing) conf.pacing = parsingFromString(std::string(pacing));
 
         if (conf.multiplier <= 1)
             throw ls::error("multiplier must be greater than 1");
@@ -243,8 +249,17 @@ void ConfigFile::write(const std::filesystem::path& path) const {
         profile.insert("flow_scale", conf.flow_scale);
         profile.insert("performance_mode", conf.performance_mode);
         switch (conf.pacing) {
-            case Pacing::None:
-                profile.insert("pacing", "none");
+            case Pacing::Mailbox:
+                profile.insert("pacing", "mailbox");
+                break;
+            case Pacing::FIFO:
+                profile.insert("pacing", "fifo");
+                break;
+            case Pacing::FIFORelaxed:
+                profile.insert("pacing", "fifo_relaxed");
+                break;
+            case Pacing::Immediate:
+                profile.insert("pacing", "immediate");
                 break;
         }
 

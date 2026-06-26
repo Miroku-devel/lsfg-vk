@@ -19,10 +19,16 @@ namespace ls {
         bool allow_fp16{};
     };
 
-    /// pacing methods
+    /// pacing methods (maps to Vulkan present modes)
     enum class Pacing : uint8_t {
-        /// do not perform any pacing (vsync+novrr)
-        None
+        /// mailbox present mode (triple buffering, no vsync, no tearing)
+        Mailbox,
+        /// fifo present mode (vsync, guaranteed available)
+        FIFO,
+        /// fifo relaxed present mode (vsync, allows late frames to tear)
+        FIFORelaxed,
+        /// immediate present mode (no vsync, may tear)
+        Immediate
     };
 
     /// game profile configuration
@@ -40,7 +46,7 @@ namespace ls {
         /// use performance mode
         bool performance_mode{false};
         /// pacing method
-        Pacing pacing{Pacing::None};
+        Pacing pacing{Pacing::Mailbox};
     };
 
     /// parsed configuration file

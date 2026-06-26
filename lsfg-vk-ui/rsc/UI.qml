@@ -230,13 +230,13 @@ ApplicationWindow {
                 }
 
                 GroupEntry {
-                    title: "Pacing Mode"
+                    title: "Present Mode"
                     description: "Change how frames are presented to the display"
 
                     ComboBox {
                         Layout.fillWidth: true
 
-                        model: ["None"]
+                        model: ["Mailbox", "FIFO (VSync)", "FIFO Relaxed", "Immediate"]
                         currentIndex: backend.pacing_mode
                         onActivated: (index) => backend.pacing_mode = index
                     }
