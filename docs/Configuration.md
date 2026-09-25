@@ -20,7 +20,8 @@ Next is a list of all available **profile** configuration options:
 - **Flow Scale / `flow_scale`**: The resolution scale at which the motion vectors are calculated. A lower value means better performance, but worse quality. (Default: `1.0`)
 - **Performance Mode / `performance_mode`**: When enabled, a significantly lighter frame generation model is used. This has a minor quality impact, but greatly improves performance. 
 (Default: `false`)
-- **Pacing Mode / `pacing`**: This option is explained in greater detail below. Supported values are **None / `none`**.
+- **Pacing Mode / `pacing`**: This option is explained in greater detail below. Supported values are **Mailbox / `mailbox`, FIFO / `fifo`, FIFO Relaxed / `fifo_relaxed`, Immediate / `immediate`** (`none` is kept as an alias for `mailbox`).
+- **Preserve Swapchain Image Count / `preserve_swapchain_image_count`**: When enabled, lsfg-vk will not increase `minImageCount` (saves VRAM, useful on 3GB cards). (Default: `false`)
 - **GPU / `gpu`**: The GPU to use for frame generation. This MUST be the **same GPU** as the one being used by the application. **Dual GPU is NOT supported**. You can identify a GPU through its name (e.g. `NVIDIA GeForce RTX 3080`), uppercase-only ID (e.g. `0x10DE:0x2C02`) or PCI bus ID (e.g. `3:0.0`). If not specified, the primary GPU will be used, which may lead to issues.
 
 The "Multiplier", "Flow Scale" and "Performance Mode" options can be **hot-reloaded**, meaning that changes to these options will take effect immediately without needing to restart the application. Options such as "Pacing Mode" or removal of the profile require a swapchain recreation, which usually means resizing or restarting the application. Any other change requires an application restart. 
@@ -34,8 +35,10 @@ Traditionally, lsfg-vk did not have frame pacing and would present frames to the
 Enabling V-Sync is not a "get-out-of-jail-free" card, because it introduces input latency. Additionally, not every compositor (such as gamescope) respects the V-Sync setting, leading to the same issues as before. As a result of this, additional pacing modes have been introduced to properly handle frame pacing.
 
 Here are all available pacing modes:
-- `none`: Traditional lsfg-vk behavior. Forces V-Sync. Might require workarounds on some compositors.
-- *... there are no other pacing modes yet ...*
+- `mailbox`: Mailbox present mode (triple buffering, no vsync, no tearing). Default.
+- `fifo`: FIFO present mode (vsync, guaranteed available).
+- `fifo_relaxed`: FIFO relaxed (vsync, late frames may tear).
+- `immediate`: Immediate (no vsync, may tear).
 
 ### Environment Variables
 
@@ -51,4 +54,5 @@ If you do not wish to use a configuration file, you can also set configuration o
 - `LSFGVK_FLOW_SCALE`: Flow scale value.
 - `LSFGVK_PERFORMANCE_MODE`: If set to `1`, performance mode will be enabled.
 - `LSFGVK_PACING`: Pacing mode to use.
+- `LSFGVK_PRESERVE_SWAPCHAIN_IMAGE_COUNT`: If set to `1`, don't bump swapchain image count.
 - `LSFGVK_GPU`: GPU to use for frame generation.

@@ -23,6 +23,7 @@
 
 #include <time.h>
 #include <bits/time.h>
+#include <sched.h>
 #include <vulkan/vulkan_core.h>
 
 using namespace lsfgvk::cli;
@@ -132,6 +133,15 @@ int benchmark::run(const Options& opts) {
         );
 
         // run the benchmark
+        {
+            const sched_param sched{
+                .sched_priority = 40
+            };
+            if (sched_setscheduler(0, SCHED_FIFO, &sched) != 0) {
+                std::cerr << "Warning: Unable to set real-time scheduling. "
+                    << "This may affect benchmark results.\n";
+            }
+        }
         size_t iterations{0};
         size_t generated_frames{0};
         size_t total_frames{1};

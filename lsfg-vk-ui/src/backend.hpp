@@ -33,6 +33,7 @@ namespace lsfgvk::ui {
         Q_PROPERTY(float flow_scale READ getFlowScale WRITE flowScaleUpdated NOTIFY refreshUI)
         Q_PROPERTY(bool performance_mode READ getPerformanceMode WRITE performanceModeUpdated NOTIFY refreshUI)
         Q_PROPERTY(int pacing_mode READ getPacingMode WRITE pacingModeUpdated NOTIFY refreshUI)
+        Q_PROPERTY(bool preserve_swapchain_image_count READ getPreserveSwapchainImageCount WRITE preserveSwapchainImageCountUpdated NOTIFY refreshUI)
         Q_PROPERTY(QStringList gpus READ calculateGPUList NOTIFY refreshUI)
         Q_PROPERTY(int gpu READ getGPU WRITE gpuUpdated NOTIFY refreshUI)
 
@@ -91,6 +92,10 @@ namespace lsfgvk::ui {
                 case ls::Pacing::Immediate:   return 3;
             }
             throw std::runtime_error("Unknown pacing type in backend");
+        }
+        [[nodiscard]] bool getPreserveSwapchainImageCount() const {
+            VALIDATE_AND_GET_PROFILE(false)
+            return conf.preserve_swapchain_image_count;
         }
         [[nodiscard]] QStringList calculateGPUList() const {
             return this->m_gpu_list;
@@ -169,6 +174,11 @@ namespace lsfgvk::ui {
                 default:
                     throw std::runtime_error("Unknown pacing mode in backend");
             }
+            MARK_DIRTY()
+        }
+        void preserveSwapchainImageCountUpdated(bool preserve) {
+            VALIDATE_AND_GET_PROFILE()
+            conf.preserve_swapchain_image_count = preserve;
             MARK_DIRTY()
         }
         void gpuUpdated(int gpu_idx) {

@@ -47,6 +47,7 @@ namespace ls {
         bool performance_mode{false};
         /// pacing method
         Pacing pacing{Pacing::Mailbox};
+        bool preserve_swapchain_image_count{false};
     };
 
     /// parsed configuration file

@@ -243,6 +243,18 @@ ApplicationWindow {
                 }
 
                 GroupEntry {
+                    title: "Preserve Image Count"
+                    description: "Don't increase swapchain image count"
+
+                    CheckBox {
+                        Layout.alignment: Qt.AlignRight
+
+                        checked: backend.preserve_swapchain_image_count
+                        onToggled: backend.preserve_swapchain_image_count = checked
+                    }
+                }
+
+                GroupEntry {
                     title: "GPU"
                     description: "Select which GPU to use for frame generation"
 

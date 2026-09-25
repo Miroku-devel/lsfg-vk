@@ -50,8 +50,10 @@ void layer::context_ModifySwapchainCreateInfo(
     const ls::GameConf& profile, uint32_t maxImages,
     VkSwapchainCreateInfoKHR& createInfo) {
   createInfo.imageUsage |= (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
-  createInfo.minImageCount = std::max<uint32_t>(createInfo.minImageCount, profile.multiplier + 1);
-  if (maxImages > 0) createInfo.minImageCount = std::min(createInfo.minImageCount, maxImages);
+  if (!profile.preserve_swapchain_image_count) {
+    createInfo.minImageCount = std::max<uint32_t>(createInfo.minImageCount, profile.multiplier + 1);
+    if (maxImages > 0) createInfo.minImageCount = std::min(createInfo.minImageCount, maxImages);
+  }
 
   switch (profile.pacing) {
     case ls::Pacing::Mailbox:

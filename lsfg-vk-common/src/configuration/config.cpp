@@ -133,7 +133,8 @@ namespace {
             .multiplier = tbl["multiplier"].value_or(2U),
             .flow_scale = tbl["flow_scale"].value_or(1.0F),
             .performance_mode = tbl["performance_mode"].value_or(false),
-            .pacing = parsingFromString(tbl["pacing"].value_or<std::string>("none"))
+            .pacing = parsingFromString(tbl["pacing"].value_or<std::string>("none")),
+            .preserve_swapchain_image_count = tbl["preserve_swapchain_image_count"].value_or(false)
         };
 
         if (conf.multiplier <= 1)
@@ -172,7 +173,8 @@ namespace {
             .multiplier = 2,
             .flow_scale = 1.0F,
             .performance_mode = false,
-        .pacing = Pacing::Mailbox
+            .pacing = Pacing::Mailbox,
+            .preserve_swapchain_image_count = false
         };
 
         const char* gpu = std::getenv("LSFGVK_GPU");
@@ -185,6 +187,9 @@ namespace {
         if (performance) conf.performance_mode = std::string(performance) == "1";
         const char* pacing = std::getenv("LSFGVK_PACING");
         if (pacing) conf.pacing = parsingFromString(std::string(pacing));
+        const char* preserveCount = std::getenv("LSFGVK_PRESERVE_SWAPCHAIN_IMAGE_COUNT");
+        if (preserveCount && *preserveCount != '\0')
+            conf.preserve_swapchain_image_count = std::string(preserveCount) == "1";
 
         if (conf.multiplier <= 1)
             throw ls::error("multiplier must be greater than 1");
@@ -248,6 +253,7 @@ void ConfigFile::write(const std::filesystem::path& path) const {
         profile.insert("multiplier", static_cast<int64_t>(conf.multiplier));
         profile.insert("flow_scale", conf.flow_scale);
         profile.insert("performance_mode", conf.performance_mode);
+        profile.insert("preserve_swapchain_image_count", conf.preserve_swapchain_image_count);
         switch (conf.pacing) {
             case Pacing::Mailbox:
                 profile.insert("pacing", "mailbox");
